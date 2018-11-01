@@ -10,7 +10,7 @@
 #include "bakkesmod/wrappers/arraywrapper.h"
 #include <sstream>
 
-BAKKESMOD_PLUGIN(HitboxPlugin, "Test hitbox plugin", "0.1", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
+BAKKESMOD_PLUGIN(HitboxPlugin, "Test hitbox plugin", "1.0", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
 
 HitboxPlugin::HitboxPlugin()
 {
@@ -49,8 +49,6 @@ void HitboxPlugin::OnFreeplayLoad(std::string eventName)
 	hitbox.clear();  // we'll reinitialize this in Render, for the first few ticks of free play, the car is null
 	cvarManager->log(std::string("OnFreeplayLoad") + eventName);
 	if (  *hitboxOn ) {
-		//hitbox = CarManager::getHitboxPoints(0);
-
 		gameWrapper->RegisterDrawable(std::bind(&HitboxPlugin::Render, this, std::placeholders::_1));
 	}	
 }
@@ -117,49 +115,53 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 
 	if (*hitboxOn && gameWrapper->IsInGame())
 	{
-		TutorialWrapper game = gameWrapper->GetGameEventAsTutorial();
+		ServerWrapper game = gameWrapper->GetGameEventAsServer();
+
 		if (game.IsNull())
 			return;
-		CarWrapper car = game.GetGameCar();
-		if (car.IsNull())
+		ArrayWrapper<CarWrapper> cars = game.GetCars();
+		 
+		if (cars.Count() > 0) {
+			CarWrapper car = cars.Get(0);
+			if (car.IsNull())
+				return;
+			if (hitbox.size() == 0) { // initialize hitbox 
+				int type = car.GetLoadoutBody();
+				cvarManager->log("car type: " + std::to_string(type));
+				hitbox = CarManager::getHitboxPoints(static_cast<CARBODY>(type));
+			}
+			canvas.SetColor(255, 255, 0, 200);
+
+			Vector v = car.GetLocation();
+			Rotator r = car.GetRotation();
+
+			double dPitch = (double)r.Pitch / 32764.0*3.14159;
+			double dYaw = (double)r.Yaw / 32764.0*3.14159;
+			double dRoll = (double)r.Roll / 32764.0*3.14159;
+
+			Vector2 carLocation2D = canvas.Project(v);
+			Vector2 hitbox2D[8];
+			for (int i = 0; i < 8; i++) {
+				hitbox2D[i] = canvas.Project(Rotate(hitbox[i], dRoll, -dYaw, dPitch) + v);
+			}
+
+			canvas.DrawLine(hitbox2D[0], hitbox2D[1]);
+			canvas.DrawLine(hitbox2D[1], hitbox2D[2]);
+			canvas.DrawLine(hitbox2D[2], hitbox2D[3]);
+			canvas.DrawLine(hitbox2D[3], hitbox2D[0]);
+			canvas.DrawLine(hitbox2D[4], hitbox2D[5]);
+			canvas.DrawLine(hitbox2D[5], hitbox2D[6]);
+			canvas.DrawLine(hitbox2D[6], hitbox2D[7]);
+			canvas.DrawLine(hitbox2D[7], hitbox2D[4]);
+			canvas.DrawLine(hitbox2D[0], hitbox2D[4]);
+			canvas.DrawLine(hitbox2D[1], hitbox2D[5]);
+			canvas.DrawLine(hitbox2D[2], hitbox2D[6]);
+			canvas.DrawLine(hitbox2D[3], hitbox2D[7]);
+
+			canvas.SetPosition(carLocation2D.minus({ 10,10 }));
+			canvas.FillBox({ 20, 20 });
 			return;
-		if (hitbox.size() == 0) { // initialize hitbox 
-			int type = gameWrapper->GetGameEventAsTutorial().GetGameCar().GetLoadoutBody();
-			cvarManager->log("car type: " + std::to_string(type));
-			hitbox = CarManager::getHitboxPoints(static_cast<CARBODY>(type));
 		}
-		canvas.SetColor(255, 255, 0, 200);
-
-		
-		Vector v = car.GetLocation();
-		Rotator r = car.GetRotation();
-
-		double dPitch = (double)r.Pitch / 32764.0*3.14159;
-		double dYaw = (double)r.Yaw / 32764.0*3.14159;
-		double dRoll = (double)r.Roll / 32764.0*3.14159;
-
-		Vector2 carLocation2D = canvas.Project(v);
-		Vector2 hitbox2D[8];
-		for (int i = 0; i < 8; i++) {
-			hitbox2D[i] = canvas.Project(Rotate(hitbox[i], dRoll, -dYaw, dPitch) + v);
-		}
-		
-		canvas.DrawLine(hitbox2D[0], hitbox2D[1]);
-		canvas.DrawLine(hitbox2D[1], hitbox2D[2]);
-		canvas.DrawLine(hitbox2D[2], hitbox2D[3]);
-		canvas.DrawLine(hitbox2D[3], hitbox2D[0]);
-		canvas.DrawLine(hitbox2D[4], hitbox2D[5]);
-		canvas.DrawLine(hitbox2D[5], hitbox2D[6]);
-		canvas.DrawLine(hitbox2D[6], hitbox2D[7]);
-		canvas.DrawLine(hitbox2D[7], hitbox2D[4]);
-		canvas.DrawLine(hitbox2D[0], hitbox2D[4]);
-		canvas.DrawLine(hitbox2D[1], hitbox2D[5]);
-		canvas.DrawLine(hitbox2D[2], hitbox2D[6]);
-		canvas.DrawLine(hitbox2D[3], hitbox2D[7]);
-
-		canvas.SetPosition(carLocation2D.minus({ 10,10 }));
-		canvas.FillBox({ 20, 20 });
-		return;
 	}
 }
 
