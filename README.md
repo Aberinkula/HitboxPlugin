@@ -1,16 +1,16 @@
 # BakkesMod Hitbox Plugin
 Draws a hitbox around your car during training.   Car type is auto-detected, and can also be set manually. 
 
-## known issues
+## Known Issues
 
 Auto-identification of car not functional with older versions of BakkesMod.  If you see an Octane hitbox on a car that's not Octane type, set the hitbox manually as described below.
 
-## installation
+## Installation
 
 Copy HitboxPlugin.dll to <steam_directory>/steamapps/common/rocketleague/Binaries/Win32/bakkesmod/plugins
 Copy hitboxplugin.set to <steam_directory>/steamapps/common/rocketleague/Binaries/Win32/bakkesmod/plugins/settings
 
-## commands
+## Commands
 
 **cl_soccar_showhitbox** [0|1] - turn hitbox on/off
 
