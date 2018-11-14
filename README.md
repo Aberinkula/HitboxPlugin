@@ -1,5 +1,5 @@
 # BakkesMod Hitbox Plugin
-Draws a hitbox around your car during training.   Car type auto-detection not working yet, must be set manually. Hitbox defaults to Octane.
+Draws a hitbox around your car during training.   Car type is auto-detected, and can also be set manually. 
 
 ## known issues
 
