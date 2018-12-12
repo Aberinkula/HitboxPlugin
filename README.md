@@ -7,8 +7,9 @@ Auto-identification of car not functional with older versions of BakkesMod.  If 
 
 ## Installation
 
-Copy HitboxPlugin.dll to <steam_directory>/steamapps/common/rocketleague/Binaries/Win32/bakkesmod/plugins
-Copy hitboxplugin.set to <steam_directory>/steamapps/common/rocketleague/Binaries/Win32/bakkesmod/plugins/settings
+1. Copy `HitboxPlugin.dll` to `<steam_directory>/steamapps/common/rocketleague/Binaries/Win32/bakkesmod/plugins`
+2. Copy `hitboxplugin.set` to `<steam_directory>/steamapps/common/rocketleague/Binaries/Win32/bakkesmod/plugins/settings`
+3. In the game console run `plugin load hitboxplugin`
 
 ## Commands
 
