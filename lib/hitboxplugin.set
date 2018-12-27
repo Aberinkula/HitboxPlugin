@@ -1,4 +1,4 @@
 Hitbox plugin
 9|This plugin will render your cars hitbox in freeplay
 1|Render hitbox|cl_soccar_showhitbox
-6|Hitbox to render|cl_soccar_sethitboxtype|Currently equipped car@0&Backfire@21&Breakout@22&Breakout type S@1416&Octane@23&Octane ZSR@1568&Paladin@24&Roadhog@25&Roadhog XL@1300&Gizmo@26&Sweettooth@27&X devil@28&X devil MK 2@1159&Hotshot@29&Merc@30&Venom@31&Takumi@402&Takumi RXT@1295&Dominus@403&Dominus GT@1018&Scarab@404&Zippy@523&Delorean@597&Ripper@600&Grog@607&Armadillo@625&Warthog@723&Batmobile@803&Masamune@1171&Marauder@1172&Aftershock@1286&Esper@1317&Proteus@1475&Triton@1478&Vulcan@1533&Twinmill@1603&Boneshaker@1623&Endo@1624&Ice charger@1675&Mantis@1691&Jager 619RS@1856&Centio@1919&Animus GP@1932
+6|Hitbox to render|cl_soccar_sethitboxtype|Currently equipped car@0&Octane@23&Dominus@403&Batmobile/Plank@803&Breakout@22&Hybrid@1624
