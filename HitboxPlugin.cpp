@@ -28,7 +28,7 @@ void HitboxPlugin::onLoad()
 	cvarManager->getCvar("cl_soccar_showhitbox").addOnValueChanged(std::bind(&HitboxPlugin::OnHitboxOnValueChanged, this, std::placeholders::_1, std::placeholders::_2));
 
 	hitboxType = make_shared<int>(0);
-	cvarManager->registerCvar("cl_soccar_sethitboxtype", "0", "Set Hitbox Car Type", true, true, 0, true, 32767).bindTo(hitboxType);
+	cvarManager->registerCvar("cl_soccar_sethitboxtype", "0", "Set Hitbox Car Type", true, true, 0, true, 32767, false).bindTo(hitboxType);
 	cvarManager->getCvar("cl_soccar_sethitboxtype").addOnValueChanged(std::bind(&HitboxPlugin::OnHitboxTypeChanged, this, std::placeholders::_1, std::placeholders::_2));
 
 
@@ -70,7 +70,7 @@ void HitboxPlugin::OnHitboxOnValueChanged(std::string oldValue, CVarWrapper cvar
 }
 
 void HitboxPlugin::OnHitboxTypeChanged(std::string oldValue, CVarWrapper cvar) {
-	hitbox = CarManager::getHitboxPoints(static_cast<CARBODY>(cvar.getIntValue()));
+	hitbox = CarManager::getHitboxPoints(static_cast<CARBODY>(cvar.getIntValue()), *gameWrapper);
 }
 
 
@@ -128,7 +128,7 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 			if (hitbox.size() == 0) { // initialize hitbox 
 				int type = car.GetLoadoutBody();
 				cvarManager->log("car type: " + std::to_string(type));
-				hitbox = CarManager::getHitboxPoints(static_cast<CARBODY>(type));
+				hitbox = CarManager::getHitboxPoints(static_cast<CARBODY>(type), *gameWrapper);
 			}
 			canvas.SetColor(255, 255, 0, 200);
 
