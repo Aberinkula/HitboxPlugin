@@ -126,9 +126,7 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 			if (car.IsNull())
 				return;
 			if (hitbox.size() == 0) { // initialize hitbox 
-				int type = car.GetLoadoutBody();
-				cvarManager->log("car type: " + std::to_string(type));
-				hitbox = CarManager::getHitboxPoints(static_cast<CARBODY>(type), *gameWrapper);
+				hitbox = CarManager::getHitboxPoints(static_cast<CARBODY>(*hitboxType), *gameWrapper);
 			}
 			canvas.SetColor(255, 255, 0, 200);
 
