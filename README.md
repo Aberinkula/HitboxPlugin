@@ -3,7 +3,7 @@ Draws a hitbox around your car during training.   Car type is auto-detected, and
 
 ## Known Issues
 
-Auto-identification of car not functional with older versions of BakkesMod.  If you see an Octane hitbox on a car that's not Octane type, set the hitbox manually as described below.
+--
 
 ## Installation
 
