@@ -8,7 +8,7 @@ class CarManager
 public:
 	CarManager();
 	static const std::string getHelpText();
-	static const std::vector<Vector> getHitboxPoints(CARBODY car_type);
+	static const std::vector<Vector> getHitboxPoints(CARBODY car_type, GameWrapper& gameWrapper);
 	~CarManager();
 };
 
