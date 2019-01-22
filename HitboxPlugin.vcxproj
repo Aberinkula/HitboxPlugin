@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{F4F06F25-2AF2-438B-9D15-849290C98D40}</ProjectGuid>
     <RootNamespace>HitboxPlugin</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
     <ProjectName>HitboxPlugin</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -83,15 +83,16 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>F:\Bakkesmod\development\BakkesMod-rewrite\BakkesMod Rewrite;C:\Users\Chris\Downloads\Lobot-master\inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Steam\steamapps\common\rocketleague\Binaries\Win32\bakkesmod\bakkesmodsdk\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>C:\Program Files (x86)\Steam\steamapps\common\rocketleague\Binaries\Win32\bakkesmod\bakkesmodsdk\lib\bakkesmod.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Steam\steamapps\common\rocketleague\Binaries\Win32\bakkesmod\bakkesmodsdk\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>f:\python\Python37-32\python "C:\Program Files (x86)\Steam\steamapps\common\rocketleague\Binaries\Win32\bakkesmod\bakkesmodsdk\bakkes_patchplugin.py" "$(TargetPath)"</Command>
+      <Command>python "C:\Users\handy\Desktop\RLTools\bakkes_patchplugin.py" "$(TargetPath)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -99,10 +100,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>C:\Program Files (x86)\Steam\steamapps\common\rocketleague\Binaries\Win32\bakkesmod\bakkesmodsdk\lib\bakkesmod.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

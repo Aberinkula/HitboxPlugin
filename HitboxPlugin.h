@@ -26,8 +26,14 @@ struct PredictedPoint
 class HitboxPlugin : public BakkesMod::Plugin::BakkesModPlugin
 {
 private:
+	//variables for settings cvars
 	std::shared_ptr<bool> hitboxOn;
 	std::shared_ptr<int> hitboxType;
+	std::shared_ptr<bool> hitboxLook;
+	std::shared_ptr<float> hitboxColorR;
+	std::shared_ptr<float> hitboxColorG;
+	std::shared_ptr<float> hitboxColorB;
+	std::shared_ptr<float> testValue;
 	LineColor colors[2] = { {0, 255, 0, 240}, {75, 0, 130, 240} };
 	std::vector<Vector> hitbox;
 public:
@@ -40,6 +46,7 @@ public:
 	void OnFreeplayDestroy(std::string eventName);
 	void OnHitboxOnValueChanged(std::string oldValue, CVarWrapper cvar);
 	void OnHitboxTypeChanged(std::string oldValue, CVarWrapper cvar);
+	void OnHitboxLookChanged(std::string oldValue, CVarWrapper cvar);
 	void Render(CanvasWrapper canvas);
 };
 
