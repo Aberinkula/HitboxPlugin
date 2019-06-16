@@ -156,8 +156,8 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 			canvas.DrawLine(hitbox2D[2], hitbox2D[6]);
 			canvas.DrawLine(hitbox2D[3], hitbox2D[7]);
 
-			canvas.SetPosition(carLocation2D.minus({ 10,10 }));
-			canvas.FillBox({ 20, 20 });
+			canvas.SetPosition(carLocation2D.minus((Vector2 { 10,10 })));
+			canvas.FillBox((Vector2 { 20, 20 }));
 			return;
 		}
 	}
