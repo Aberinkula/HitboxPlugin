@@ -10,6 +10,8 @@
 #include "bakkesmod/wrappers/arraywrapper.h"
 #include "RenderingTools/Objects/Circle.h"
 #include "RenderingTools/Objects/Frustum.h"
+#include "RenderingTools/Objects/Line.h"
+#include "RenderingTools/Objects/Sphere.h"
 #include "RenderingTools/Extra/WrapperStructsExtensions.h"
 #include "RenderingTools/Extra/RenderingMath.h"
 #include <sstream>
@@ -27,8 +29,8 @@ HitboxPlugin::~HitboxPlugin()
 
 void HitboxPlugin::onLoad()
 {
-	hitboxOn = std::make_shared<bool>(true);
-	cvarManager->registerCvar("cl_soccar_showhitbox", "0", "Show Hitbox", true, true, 0, true, 1).bindTo(hitboxOn);
+	hitboxOn = std::make_shared<int>(0);
+	cvarManager->registerCvar("cl_soccar_showhitbox", "0", "Show Hitbox", true, true, 0, true, 3).bindTo(hitboxOn);
 	cvarManager->getCvar("cl_soccar_showhitbox").addOnValueChanged(std::bind(&HitboxPlugin::OnHitboxOnValueChanged, this, std::placeholders::_1, std::placeholders::_2));
 
 	hitboxType = std::make_shared<int>(0);
@@ -41,8 +43,9 @@ void HitboxPlugin::onLoad()
 	gameWrapper->HookEvent("Function TAGame.GameEvent_TrainingEditor_TA.StartPlayTest", bind(&HitboxPlugin::OnFreeplayLoad, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_TrainingEditor_TA.Destroyed", bind(&HitboxPlugin::OnFreeplayDestroy, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameInfo_Replay_TA.InitGame", bind(&HitboxPlugin::OnFreeplayLoad, this, std::placeholders::_1));
+	gameWrapper->HookEvent("Function TAGame.Replay_TA.EventPostTimeSkip", bind(&HitboxPlugin::OnFreeplayLoad, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameInfo_Replay_TA.Destroyed", bind(&HitboxPlugin::OnFreeplayDestroy, this, std::placeholders::_1));
-	gameWrapper->HookEvent("Function Engine.Actor.SpawnInstance", [this](std::string eventName) {
+	gameWrapper->HookEvent("Function TAGame.Replay_TA.EventSpawned", [this](std::string eventName) {
 		this->OnHitboxTypeChanged("", cvarManager->getCvar("cl_soccar_sethitboxtype"));
 		});
 
@@ -69,7 +72,8 @@ void HitboxPlugin::OnFreeplayDestroy(std::string eventName)
 
 void HitboxPlugin::OnHitboxOnValueChanged(std::string oldValue, CVarWrapper cvar)
 {
-	if (cvar.getBoolValue() && (gameWrapper->IsInGame() || gameWrapper->IsInReplay())) {
+	int ingame = (gameWrapper->IsInGame()) ? 1 : (gameWrapper->IsInReplay()) ? 2 : 0;
+	if (cvar.getIntValue() & ingame) {
 		OnFreeplayLoad("Load");
 	}
 	else
@@ -122,7 +126,7 @@ void HitboxPlugin::OnHitboxTypeChanged(std::string oldValue, CVarWrapper cvar) {
 void HitboxPlugin::Render(CanvasWrapper canvas)
 {
 	int ingame = (gameWrapper->IsInGame()) ? 1 : (gameWrapper->IsInReplay()) ? 2 : 0;
-	if (*hitboxOn && ingame)
+	if (*hitboxOn & ingame)
 	{
 
 		ServerWrapper game = (ingame == 1)? gameWrapper->GetGameEventAsServer(): gameWrapper->GetGameEventAsReplay();
@@ -130,7 +134,9 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 		if (game.IsNull())
 			return;
 		ArrayWrapper<CarWrapper> cars = game.GetCars();
-		RT::Frustum frust{ canvas, gameWrapper->GetCamera() };
+		auto camera = gameWrapper->GetCamera();
+		if (camera.IsNull()) return;
+		RT::Frustum frust{ canvas, camera };
 		std::vector<Vector> hitbox;
 		int car_i = 0;
 		for (auto car : cars) {
@@ -148,35 +154,59 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 			double dYaw = (double)r.Yaw / 32768.0*3.14159;
 			double dRoll = (double)r.Roll / 32768.0*3.14159;
 
-			Vector2 carLocation2D = canvas.Project(v);
-			Vector2 hitbox2D[8];
+			Vector2F carLocation2D = canvas.ProjectF(v);
+			//Vector2 hitbox2D[8];
+			Vector hitbox3D[8];
 			
 			hitboxes.at(car_i).getPoints(hitbox);
-			for (int i = 0; i < 8; i++) {
-				hitbox2D[i] = canvas.Project(Rotate(hitbox[i], dRoll, -dYaw, dPitch) + v);
+			if (fabs(hitbox[0].Z - hitbox[1].Z) < 0.01f)
+			{ // on the first tick this gets hooked, the extent/offset returned is still 0
+			  // so we skip this tick and throw the data away to get it again next frame
+				hitboxes.clear();
+				return;
 			}
+			for (int i = 0; i < 8; i++) {
+				hitbox3D[i] = Rotate(hitbox[i], dRoll, -dYaw, dPitch) + v;
+				//hitbox2D[i] = canvas.Project(Rotate(hitbox[i], dRoll, -dYaw, dPitch) + v);
+			}
+			RT::Line(hitbox3D[0], hitbox3D[1]).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[1], hitbox3D[2]).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[2], hitbox3D[3]).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[3], hitbox3D[0]).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[4], hitbox3D[5]).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[5], hitbox3D[6]).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[6], hitbox3D[7]).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[7], hitbox3D[4]).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[0], hitbox3D[4]).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[1], hitbox3D[5]).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[2], hitbox3D[6]).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[3], hitbox3D[7]).DrawWithinFrustum(canvas, frust);
 
-			canvas.DrawLine(hitbox2D[0], hitbox2D[1]);
-			canvas.DrawLine(hitbox2D[1], hitbox2D[2]);
-			canvas.DrawLine(hitbox2D[2], hitbox2D[3]);
-			canvas.DrawLine(hitbox2D[3], hitbox2D[0]);
-			canvas.DrawLine(hitbox2D[4], hitbox2D[5]);
-			canvas.DrawLine(hitbox2D[5], hitbox2D[6]);
-			canvas.DrawLine(hitbox2D[6], hitbox2D[7]);
-			canvas.DrawLine(hitbox2D[7], hitbox2D[4]);
-			canvas.DrawLine(hitbox2D[0], hitbox2D[4]);
-			canvas.DrawLine(hitbox2D[1], hitbox2D[5]);
-			canvas.DrawLine(hitbox2D[2], hitbox2D[6]);
-			canvas.DrawLine(hitbox2D[3], hitbox2D[7]);
+			float diff = (camera.GetLocation() - v).magnitude();
+			Quat car_rot = RT::RotatorToQuat(r);
+			if (diff < 800.f)
+				RT::Sphere(v, car_rot, 4.f).Draw(canvas, frust,camera.GetLocation(), 10);
+			
+			//canvas.DrawLine(hitbox2D[0], hitbox2D[1]);
+			//canvas.DrawLine(hitbox2D[1], hitbox2D[2]);
+			//canvas.DrawLine(hitbox2D[2], hitbox2D[3]);
+			//canvas.DrawLine(hitbox2D[3], hitbox2D[0]);
+			//canvas.DrawLine(hitbox2D[4], hitbox2D[5]);
+			//canvas.DrawLine(hitbox2D[5], hitbox2D[6]);
+			//canvas.DrawLine(hitbox2D[6], hitbox2D[7]);
+			//canvas.DrawLine(hitbox2D[7], hitbox2D[4]);
+			//canvas.DrawLine(hitbox2D[0], hitbox2D[4]);
+			//canvas.DrawLine(hitbox2D[1], hitbox2D[5]);
+			//canvas.DrawLine(hitbox2D[2], hitbox2D[6]);
+			//canvas.DrawLine(hitbox2D[3], hitbox2D[7]);
 
-			canvas.SetPosition(carLocation2D.minus((Vector2{ 10,10 })));
-			canvas.FillBox((Vector2{ 20, 20 }));
+			//canvas.SetPosition(carLocation2D.minus((Vector2{ 10,10 })));
+			//canvas.FillBox((Vector2{ 20, 20 }));
 
 
 			auto sim = car.GetVehicleSim();
 			auto wheels = sim.GetWheels();
 			if (wheels.IsNull()) continue;
-			Quat car_rot = RT::RotatorToQuat(r);
 			Vector turn_axis = RT::RotateVectorWithQuat(Vector{ 0.f, 0.f, 1.f }, car_rot);
 			Quat upright_rot = RT::AngleAxisRotation(3.14159f / 2.0f, Vector{ 1.f, 0.f, 0.f });
 			for (auto wheel : wheels)
