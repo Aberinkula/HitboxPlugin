@@ -8,9 +8,13 @@
 #include "bakkesmod/wrappers/GameObject/CarWrapper.h"
 #include "bakkesmod\wrappers\GameEvent\TutorialWrapper.h"
 #include "bakkesmod/wrappers/arraywrapper.h"
+#include "RenderingTools/Objects/Circle.h"
+#include "RenderingTools/Objects/Frustum.h"
+#include "RenderingTools/Extra/WrapperStructsExtensions.h"
+#include "RenderingTools/Extra/RenderingMath.h"
 #include <sstream>
 
-BAKKESMOD_PLUGIN(HitboxPlugin, "Test hitbox plugin", "1.0", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
+BAKKESMOD_PLUGIN(HitboxPlugin, "Hitbox plugin", "2.0", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
 
 HitboxPlugin::HitboxPlugin()
 {
@@ -23,21 +27,26 @@ HitboxPlugin::~HitboxPlugin()
 
 void HitboxPlugin::onLoad()
 {
-	hitboxOn = make_shared<bool>(true);
+	hitboxOn = std::make_shared<bool>(true);
 	cvarManager->registerCvar("cl_soccar_showhitbox", "0", "Show Hitbox", true, true, 0, true, 1).bindTo(hitboxOn);
 	cvarManager->getCvar("cl_soccar_showhitbox").addOnValueChanged(std::bind(&HitboxPlugin::OnHitboxOnValueChanged, this, std::placeholders::_1, std::placeholders::_2));
 
-	hitboxType = make_shared<int>(0);
+	hitboxType = std::make_shared<int>(0);
 	cvarManager->registerCvar("cl_soccar_sethitboxtype", "0", "Set Hitbox Car Type", true, true, 0, true, 32767, false).bindTo(hitboxType);
 	cvarManager->getCvar("cl_soccar_sethitboxtype").addOnValueChanged(std::bind(&HitboxPlugin::OnHitboxTypeChanged, this, std::placeholders::_1, std::placeholders::_2));
 
 
-	gameWrapper->HookEvent("Function TAGame.GameEvent_Tutorial_TA.OnInit", bind(&HitboxPlugin::OnFreeplayLoad, this, std::placeholders::_1));
-	gameWrapper->HookEvent("Function TAGame.GameEvent_Tutorial_TA.Destroyed", bind(&HitboxPlugin::OnFreeplayDestroy, this, std::placeholders::_1));
+	gameWrapper->HookEvent("Function TAGame.Mutator_Freeplay_TA.Init", bind(&HitboxPlugin::OnFreeplayLoad, this, std::placeholders::_1));
+	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.Destroyed", bind(&HitboxPlugin::OnFreeplayDestroy, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_TrainingEditor_TA.StartPlayTest", bind(&HitboxPlugin::OnFreeplayLoad, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_TrainingEditor_TA.Destroyed", bind(&HitboxPlugin::OnFreeplayDestroy, this, std::placeholders::_1));
+	gameWrapper->HookEvent("Function TAGame.GameInfo_Replay_TA.InitGame", bind(&HitboxPlugin::OnFreeplayLoad, this, std::placeholders::_1));
+	gameWrapper->HookEvent("Function TAGame.GameInfo_Replay_TA.Destroyed", bind(&HitboxPlugin::OnFreeplayDestroy, this, std::placeholders::_1));
+	gameWrapper->HookEvent("Function Engine.Actor.SpawnInstance", [this](std::string eventName) {
+		this->OnHitboxTypeChanged("", cvarManager->getCvar("cl_soccar_sethitboxtype"));
+		});
 
-	cvarManager->registerNotifier("cl_soccar_listhitboxtypes", [this](vector<string> params) {
+	cvarManager->registerNotifier("cl_soccar_listhitboxtypes", [this](std:: vector<std::string> params) {
 		cvarManager->log(CarManager::getHelpText());
 	}, "List all hitbox integer types, use these values as parameters for cl_soccar_sethitboxtype", PERMISSION_ALL);
 	
@@ -46,7 +55,7 @@ void HitboxPlugin::onLoad()
 void HitboxPlugin::OnFreeplayLoad(std::string eventName)
 {
 	// get the 8 hitbox points for current car type
-	hitbox.clear();  // we'll reinitialize this in Render, for the first few ticks of free play, the car is null
+	hitboxes.clear();  // we'll reinitialize this in Render, for the first few ticks of free play, the car is null
 	cvarManager->log(std::string("OnFreeplayLoad") + eventName);
 	if (  *hitboxOn ) {
 		gameWrapper->RegisterDrawable(std::bind(&HitboxPlugin::Render, this, std::placeholders::_1));
@@ -60,7 +69,7 @@ void HitboxPlugin::OnFreeplayDestroy(std::string eventName)
 
 void HitboxPlugin::OnHitboxOnValueChanged(std::string oldValue, CVarWrapper cvar)
 {
-	if (cvar.getBoolValue() && gameWrapper->IsInGame()) {
+	if (cvar.getBoolValue() && (gameWrapper->IsInGame() || gameWrapper->IsInReplay())) {
 		OnFreeplayLoad("Load");
 	}
 	else
@@ -70,7 +79,7 @@ void HitboxPlugin::OnHitboxOnValueChanged(std::string oldValue, CVarWrapper cvar
 }
 
 void HitboxPlugin::OnHitboxTypeChanged(std::string oldValue, CVarWrapper cvar) {
-	hitbox = CarManager::getHitboxPoints(static_cast<CARBODY>(cvar.getIntValue()), *gameWrapper);
+	hitboxes.clear();
 }
 
 
@@ -112,33 +121,37 @@ void HitboxPlugin::OnHitboxTypeChanged(std::string oldValue, CVarWrapper cvar) {
 
 void HitboxPlugin::Render(CanvasWrapper canvas)
 {
-
-	if (*hitboxOn && gameWrapper->IsInGame())
+	int ingame = (gameWrapper->IsInGame()) ? 1 : (gameWrapper->IsInReplay()) ? 2 : 0;
+	if (*hitboxOn && ingame)
 	{
-		ServerWrapper game = gameWrapper->GetGameEventAsServer();
+
+		ServerWrapper game = (ingame == 1)? gameWrapper->GetGameEventAsServer(): gameWrapper->GetGameEventAsReplay();
 
 		if (game.IsNull())
 			return;
 		ArrayWrapper<CarWrapper> cars = game.GetCars();
-		 
-		if (cars.Count() > 0) {
-			CarWrapper car = cars.Get(0);
+		RT::Frustum frust{ canvas, gameWrapper->GetCamera() };
+		std::vector<Vector> hitbox;
+		int car_i = 0;
+		for (auto car : cars) {
 			if (car.IsNull())
-				return;
-			if (hitbox.size() == 0) { // initialize hitbox 
-				hitbox = CarManager::getHitboxPoints(static_cast<CARBODY>(*hitboxType), *gameWrapper);
+				continue;
+			if (hitboxes.size() <= car_i) { // initialize hitboxes 
+				hitboxes.push_back(CarManager::getHitbox(static_cast<CARBODY>(*hitboxType), car));
 			}
 			canvas.SetColor(255, 255, 0, 200);
 
 			Vector v = car.GetLocation();
 			Rotator r = car.GetRotation();
 
-			double dPitch = (double)r.Pitch / 32764.0*3.14159;
-			double dYaw = (double)r.Yaw / 32764.0*3.14159;
-			double dRoll = (double)r.Roll / 32764.0*3.14159;
+			double dPitch = (double)r.Pitch / 32768.0*3.14159;
+			double dYaw = (double)r.Yaw / 32768.0*3.14159;
+			double dRoll = (double)r.Roll / 32768.0*3.14159;
 
 			Vector2 carLocation2D = canvas.Project(v);
 			Vector2 hitbox2D[8];
+			
+			hitboxes.at(car_i).getPoints(hitbox);
 			for (int i = 0; i < 8; i++) {
 				hitbox2D[i] = canvas.Project(Rotate(hitbox[i], dRoll, -dYaw, dPitch) + v);
 			}
@@ -156,9 +169,31 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 			canvas.DrawLine(hitbox2D[2], hitbox2D[6]);
 			canvas.DrawLine(hitbox2D[3], hitbox2D[7]);
 
-			canvas.SetPosition(carLocation2D.minus((Vector2 { 10,10 })));
-			canvas.FillBox((Vector2 { 20, 20 }));
-			return;
+			canvas.SetPosition(carLocation2D.minus((Vector2{ 10,10 })));
+			canvas.FillBox((Vector2{ 20, 20 }));
+
+
+			auto sim = car.GetVehicleSim();
+			auto wheels = sim.GetWheels();
+			if (wheels.IsNull()) continue;
+			Quat car_rot = RT::RotatorToQuat(r);
+			Vector turn_axis = RT::RotateVectorWithQuat(Vector{ 0.f, 0.f, 1.f }, car_rot);
+			Quat upright_rot = RT::AngleAxisRotation(3.14159f / 2.0f, Vector{ 1.f, 0.f, 0.f });
+			for (auto wheel : wheels)
+			{
+				Vector loc = wheel.GetLocalRestPosition() - Vector(0.f, 0.f, wheel.GetSuspensionDistance());
+				loc = RT::RotateVectorWithQuat(loc, car_rot);
+				loc = loc + v;
+
+				Quat turn_rot = RT::AngleAxisRotation(wheel.GetSteer2(), Vector{ 0.f, 0.f, 1.f });
+				Quat final_rot = car_rot * turn_rot * upright_rot;
+
+				RT::Circle circ{ loc, final_rot, wheel.GetWheelRadius() };
+				
+				circ.Draw(canvas, frust);
+			}
+
+			car_i++;
 		}
 	}
 }

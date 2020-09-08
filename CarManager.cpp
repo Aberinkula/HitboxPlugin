@@ -5,9 +5,10 @@ CarManager::CarManager()
 {
 }
 
-const std::vector<Vector> CarManager::getHitboxPoints(CARBODY car_type, GameWrapper& gameWrapper)
+Hitbox CarManager::getHitbox(CARBODY car_type, CarWrapper& car)
 {
-	Hitbox *hitbox;
+	// octane default
+	Hitbox hitbox(118.0074000f / 2.0f, 84.1994100f / 2.0f, 36.1590700f / 2.0f, 13.87566f, 0.0f, 20.75499f);;
 	switch (car_type) {
 	// OCTANE type ---------------------------------------------------------------
 	case CAR_OCTANE:
@@ -29,26 +30,26 @@ const std::vector<Vector> CarManager::getHitboxPoints(CARBODY car_type, GameWrap
 	case CAR_GROG:
 	case CAR_ARMADILLO: //gears of war car, XBOX exclusive?
 	case CAR_MARAUDER:
-		hitbox = new Hitbox(118.0074000f / 2.0f, 84.1994100f / 2.0f, 36.1590700f / 2.0f, 13.87566f, 0.0f, 20.75499f);
+		hitbox = Hitbox(118.0074000f / 2.0f, 84.1994100f / 2.0f, 36.1590700f / 2.0f, 13.87566f, 0.0f, 20.75499f);
 		break;
 
 	// BREAKOUT type ---------------------------------------------------------------
 	case CAR_BREAKOUT:
 	case CAR_BREAKOUTTYPES:
 	case CAR_ANIMUSGP:
-		hitbox = new Hitbox(65.746178f, 40.260502f, 15.15f, 12.5f, 0.0f, 11.75f);
+		hitbox = Hitbox(65.746178f, 40.260502f, 15.15f, 12.5f, 0.0f, 11.75f);
 		break;
 
 	// BATMOBILE ---------------------------------------------------------------
 	case CAR_BATMOBILE:
-		hitbox = new Hitbox(64.409989f, 42.335182f, 14.697201f, 9.008572f, 0.0f, 12.0942f);
+		hitbox = Hitbox(64.409989f, 42.335182f, 14.697201f, 9.008572f, 0.0f, 12.0942f);
 		break;
 	// PLANK type    ---------------------------------------------------------------
 	case CAR_MANTIS:
 	case CAR_TWINMILL:
 	case CAR_PALADIN:
 	case CAR_CENTIO:
-		hitbox = new Hitbox(64.409889f, 42.335182f, 14.697201f, 9.008572f, 0.0f, 12.0942f);
+		hitbox = Hitbox(64.409889f, 42.335182f, 14.697201f, 9.008572f, 0.0f, 12.0942f);
 		break;
 
 	// DOMINUS type ---------------------------------------------------------------
@@ -59,7 +60,7 @@ const std::vector<Vector> CarManager::getHitboxPoints(CARBODY car_type, GameWrap
 	case CAR_AFTERSHOCK:
 	case CAR_MASAMUNE:
 	case CAR_RIPPER:
-		hitbox = new Hitbox(63.96339f, 41.639977f, 15.65f, 9.0f, 0.0f, 15.75f);
+		hitbox = Hitbox(63.96339f, 41.639977f, 15.65f, 9.0f, 0.0f, 15.75f);
 		break;
 
 	// HYBRID type ---------------------------------------------------------------
@@ -69,7 +70,7 @@ const std::vector<Vector> CarManager::getHitboxPoints(CARBODY car_type, GameWrap
 	case CAR_ENDO:
 	case CAR_ESPER:
 	case CAR_JOGER619RS:
-		hitbox = new Hitbox(63.509594f, 41.093933f, 17.079536f, 13.87566f, 0.0f, 20.75499f);
+		hitbox = Hitbox(63.509594f, 41.093933f, 17.079536f, 13.87566f, 0.0f, 20.75499f);
 		break;
 
 	// UNKNOWN types : return OCTANE for now.  TODO: fill these in
@@ -77,30 +78,15 @@ const std::vector<Vector> CarManager::getHitboxPoints(CARBODY car_type, GameWrap
 	case CAR_WARTHOG: //Halo car, XBOX exclusive
 	case 0:
 	default:
-		if (gameWrapper.IsInGame()) {
-			ServerWrapper game = gameWrapper.GetGameEventAsServer();
-			if (!game.IsNull()) {
-
-				ArrayWrapper<CarWrapper> cars = game.GetCars();
-
-				if (cars.Count() > 0) {
-					CarWrapper car = cars.Get(0);
-					if (!car.IsNull()) {
-						Vector extent = car.GetLocalCollisionExtent();
-						Vector offset = car.GetLocalCollisionOffset();
-						hitbox = new Hitbox(extent.X, extent.Y, extent.Z, offset.X, offset.Y, offset.Z);
-						break;
-					}
-				}
-			}
+		if (!car.IsNull()) {
+			Vector extent = car.GetLocalCollisionExtent();
+			Vector offset = car.GetLocalCollisionOffset();
+			hitbox = Hitbox(extent.X, extent.Y, extent.Z, offset.X, offset.Y, offset.Z);
+			break;
 		}
-		hitbox = new Hitbox(118.0074000f / 2.0f, 84.1994100f / 2.0f, 36.1590700f / 2.0f, 13.87566f, 0.0f, 20.75499f);
 		break;
 	}	
-	std::vector<Vector> pts;
-	hitbox->getPoints(pts);
-	delete hitbox;
-	return pts;
+	return hitbox;
 }
 
 

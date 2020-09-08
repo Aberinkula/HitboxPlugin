@@ -1,7 +1,8 @@
 #pragma once
 #include <memory>
-#pragma comment( lib, "bakkesmod.lib" )
+#pragma comment( lib, "pluginsdk.lib" )
 #include "bakkesmod/plugin/bakkesmodplugin.h"
+#include "Hitbox.h"
 
 /*
 Colors the prediction line can have
@@ -29,7 +30,7 @@ private:
 	std::shared_ptr<bool> hitboxOn;
 	std::shared_ptr<int> hitboxType;
 	LineColor colors[2] = { {0, 255, 0, 240}, {75, 0, 130, 240} };
-	std::vector<Vector> hitbox;
+	std::vector<Hitbox> hitboxes;
 public:
 	HitboxPlugin();
 	~HitboxPlugin();

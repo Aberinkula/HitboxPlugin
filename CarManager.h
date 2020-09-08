@@ -1,5 +1,6 @@
 #pragma once
 #include "bakkesmod/plugin/bakkesmodplugin.h"
+#include "Hitbox.h"
 #include <vector>
 #include <string>
 
@@ -8,7 +9,7 @@ class CarManager
 public:
 	CarManager();
 	static const std::string getHelpText();
-	static const std::vector<Vector> getHitboxPoints(CARBODY car_type, GameWrapper& gameWrapper);
+	static Hitbox getHitbox(CARBODY car_type, CarWrapper& car);
 	~CarManager();
 };
 
