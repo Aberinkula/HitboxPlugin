@@ -177,7 +177,6 @@
     <ClCompile Include="RenderingTools\Objects\Sphere.cpp" />
     <ClCompile Include="RenderingTools\Objects\Triangle.cpp" />
     <ClCompile Include="RenderingTools\Objects\VisualCamera.cpp" />
-    <ClCompile Include="RenderingTools\RenderingTools.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

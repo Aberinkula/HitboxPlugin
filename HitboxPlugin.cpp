@@ -186,7 +186,7 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 			RT::Line(hitbox3D[3], hitbox3D[7], 5.f).DrawWithinFrustum(canvas, frust);
 
 			float diff = (camera.GetLocation() - v).magnitude();
-			Quat car_rot = RT::RotatorToQuat(r);
+			Quat car_rot = RotatorToQuat(r);
 			//if (diff < 1000.f)
 				RT::Sphere(v, car_rot, 2.f).Draw(canvas, frust,camera.GetLocation(), 30);
 			

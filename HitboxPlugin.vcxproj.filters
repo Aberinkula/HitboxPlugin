@@ -75,9 +75,6 @@
     <ClCompile Include="RenderingTools\Objects\VisualCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RenderingTools\RenderingTools.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HitboxPlugin.h">
@@ -87,6 +84,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CarManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingTools\RenderingTools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderingTools\Extra\RenderingAssistant.h">
@@ -138,9 +138,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderingTools\Objects\VisualCamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderingTools\RenderingTools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
