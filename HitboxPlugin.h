@@ -29,6 +29,7 @@ class HitboxPlugin : public BakkesMod::Plugin::BakkesModPlugin
 private:
 	std::shared_ptr<int> hitboxOn;
 	std::shared_ptr<int> hitboxType;
+	std::shared_ptr<LinearColor> hitboxColor;
 	LineColor colors[2] = { {0, 255, 0, 240}, {75, 0, 130, 240} };
 	std::vector<Hitbox> hitboxes;
 public:
