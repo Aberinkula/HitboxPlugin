@@ -188,7 +188,7 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 			float diff = (camera.GetLocation() - v).magnitude();
 			Quat car_rot = RotatorToQuat(r);
 			if (diff < 1000.f)
-				RT::Sphere(v, car_rot, 2.f).Draw(canvas, frust,camera.GetLocation(), 16);
+				RT::Sphere(v, car_rot, 2.f).Draw(canvas, frust,camera.GetLocation(), 10);
 
 
 			auto sim = car.GetVehicleSim();

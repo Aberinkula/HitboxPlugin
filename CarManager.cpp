@@ -22,7 +22,6 @@ Hitbox CarManager::getHitbox(CARBODY car_type, CarWrapper& car)
 	case CAR_TAKUMIRXT:
 	case CAR_BONESHAKER:
 	case CAR_TRITON:
-	case CAR_MERC:
 	case CAR_SCARAB:
 	case CAR_GIZMO:
 	case CAR_DELOREAN:
@@ -71,6 +70,11 @@ Hitbox CarManager::getHitbox(CARBODY car_type, CarWrapper& car)
 	case CAR_ESPER:
 	case CAR_JOGER619RS:
 		hitbox = Hitbox(63.509594f, 41.093933f, 17.079536f, 13.87566f, 0.0f, 20.75499f);
+		break;
+
+	// MERC type ---------------------------------------------------------------
+	case CAR_MERC:
+		hitbox = Hitbox(60.360115f, 38.355156f, 20.829536f, 11.375660f, 0.0f, 21.504988f);
 		break;
 
 	// UNKNOWN types : return OCTANE for now.  TODO: fill these in

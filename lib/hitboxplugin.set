@@ -1,5 +1,6 @@
 Hitbox plugin
 9|This plugin will render your car's hitbox in freeplay, custom training, custom maps, or replays.
 6|Show hitbox|cl_soccar_showhitbox|Off@0&Practice@1&Replays@2&Practice and Replays@3
-6|Hitbox to render|cl_soccar_sethitboxtype|Currently equipped car@0&Octane@23&Dominus@403&Batmobile/Plank@803&Breakout@22&Hybrid@1624
+6|Hitbox to render|cl_soccar_sethitboxtype|Currently equipped car@0&Octane@23&Dominus@403&Batmobile/Plank@803&Breakout@22&Hybrid@1624&Merc@30
 9|Wheels will always be based on the current equipped hitbox type
+13|Line color|cl_soccar_hitboxcolor
