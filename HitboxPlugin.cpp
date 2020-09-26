@@ -172,39 +172,23 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 				hitbox3D[i] = Rotate(hitbox[i], dRoll, -dYaw, dPitch) + v;
 				//hitbox2D[i] = canvas.Project(Rotate(hitbox[i], dRoll, -dYaw, dPitch) + v);
 			}
-			RT::Line(hitbox3D[0], hitbox3D[1], 5.f).DrawWithinFrustum(canvas, frust);
-			RT::Line(hitbox3D[1], hitbox3D[2], 5.f).DrawWithinFrustum(canvas, frust);
-			RT::Line(hitbox3D[2], hitbox3D[3], 5.f).DrawWithinFrustum(canvas, frust);
-			RT::Line(hitbox3D[3], hitbox3D[0], 5.f).DrawWithinFrustum(canvas, frust);
-			RT::Line(hitbox3D[4], hitbox3D[5], 5.f).DrawWithinFrustum(canvas, frust);
-			RT::Line(hitbox3D[5], hitbox3D[6], 5.f).DrawWithinFrustum(canvas, frust);
-			RT::Line(hitbox3D[6], hitbox3D[7], 5.f).DrawWithinFrustum(canvas, frust);
-			RT::Line(hitbox3D[7], hitbox3D[4], 5.f).DrawWithinFrustum(canvas, frust);
-			RT::Line(hitbox3D[0], hitbox3D[4], 5.f).DrawWithinFrustum(canvas, frust);
-			RT::Line(hitbox3D[1], hitbox3D[5], 5.f).DrawWithinFrustum(canvas, frust);
-			RT::Line(hitbox3D[2], hitbox3D[6], 5.f).DrawWithinFrustum(canvas, frust);
-			RT::Line(hitbox3D[3], hitbox3D[7], 5.f).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[0], hitbox3D[1], 1.f).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[1], hitbox3D[2], 1.f).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[2], hitbox3D[3], 1.f).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[3], hitbox3D[0], 1.f).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[4], hitbox3D[5], 1.f).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[5], hitbox3D[6], 1.f).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[6], hitbox3D[7], 1.f).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[7], hitbox3D[4], 1.f).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[0], hitbox3D[4], 1.f).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[1], hitbox3D[5], 1.f).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[2], hitbox3D[6], 1.f).DrawWithinFrustum(canvas, frust);
+			RT::Line(hitbox3D[3], hitbox3D[7], 1.f).DrawWithinFrustum(canvas, frust);
 
 			float diff = (camera.GetLocation() - v).magnitude();
 			Quat car_rot = RotatorToQuat(r);
-			//if (diff < 1000.f)
-				RT::Sphere(v, car_rot, 2.f).Draw(canvas, frust,camera.GetLocation(), 30);
-			
-			//canvas.DrawLine(hitbox2D[0], hitbox2D[1]);
-			//canvas.DrawLine(hitbox2D[1], hitbox2D[2]);
-			//canvas.DrawLine(hitbox2D[2], hitbox2D[3]);
-			//canvas.DrawLine(hitbox2D[3], hitbox2D[0]);
-			//canvas.DrawLine(hitbox2D[4], hitbox2D[5]);
-			//canvas.DrawLine(hitbox2D[5], hitbox2D[6]);
-			//canvas.DrawLine(hitbox2D[6], hitbox2D[7]);
-			//canvas.DrawLine(hitbox2D[7], hitbox2D[4]);
-			//canvas.DrawLine(hitbox2D[0], hitbox2D[4]);
-			//canvas.DrawLine(hitbox2D[1], hitbox2D[5]);
-			//canvas.DrawLine(hitbox2D[2], hitbox2D[6]);
-			//canvas.DrawLine(hitbox2D[3], hitbox2D[7]);
-
-			//canvas.SetPosition(carLocation2D.minus((Vector2{ 10,10 })));
-			//canvas.FillBox((Vector2{ 20, 20 }));
+			if (diff < 1000.f)
+				RT::Sphere(v, car_rot, 2.f).Draw(canvas, frust,camera.GetLocation(), 16);
 
 
 			auto sim = car.GetVehicleSim();
