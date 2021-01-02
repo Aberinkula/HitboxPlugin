@@ -16,7 +16,7 @@
 #include "RenderingTools/Extra/RenderingMath.h"
 #include <sstream>
 
-BAKKESMOD_PLUGIN(HitboxPlugin, "Hitbox plugin", "2.0", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
+BAKKESMOD_PLUGIN(HitboxPlugin, "Hitbox plugin", "2.1", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
 
 HitboxPlugin::HitboxPlugin()
 {
@@ -131,9 +131,8 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 	int ingame = (gameWrapper->IsInGame()) ? 1 : (gameWrapper->IsInReplay()) ? 2 : 0;
 	if (*hitboxOn & ingame)
 	{
-		if (gameWrapper->IsInOnlineGame()) return;
+		if (gameWrapper->IsInOnlineGame() && ingame != 2) return;
 		ServerWrapper game = (ingame == 1) ? gameWrapper->GetGameEventAsServer() : gameWrapper->GetGameEventAsReplay();
-
 		if (game.IsNull())
 			return;
 		ArrayWrapper<CarWrapper> cars = game.GetCars();
@@ -141,6 +140,12 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 		if (camera.IsNull()) return;
 		RT::Frustum frust{ canvas, camera };
 		std::vector<Vector> hitbox;
+		static int car_count = 0;
+		if (cars.Count() < hitboxes.size())
+		{
+			hitboxes.clear();
+		}
+
 		int car_i = 0;
 		for (auto car : cars) {
 			if (car.IsNull())
@@ -188,7 +193,7 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 			float diff = (camera.GetLocation() - v).magnitude();
 			Quat car_rot = RotatorToQuat(r);
 			if (diff < 1000.f)
-				RT::Sphere(v, car_rot, 2.f).Draw(canvas, frust,camera.GetLocation(), 10);
+				RT::Sphere(v, car_rot, 3.f).Draw(canvas, frust,camera.GetLocation(), 10);
 
 
 			auto sim = car.GetVehicleSim();
