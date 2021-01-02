@@ -75,7 +75,8 @@ void HitboxPlugin::OnFreeplayDestroy(std::string eventName)
 
 void HitboxPlugin::OnHitboxOnValueChanged(std::string oldValue, CVarWrapper cvar)
 {
-	int ingame = (gameWrapper->IsInOnlineGame()) ? 0 : (gameWrapper->IsInGame()) ? 1 : (gameWrapper->IsInReplay()) ? 2 : 0;
+	int ingame = (gameWrapper->IsInReplay()) ? 2 : ((gameWrapper->IsInOnlineGame()) ? 0 : ((gameWrapper->IsInGame()) ? 1 : 0));
+	//cvarManager->log("OnHitboxValueChanged: " + std::to_string(ingame));
 	if (cvar.getIntValue() & ingame) {
 		OnFreeplayLoad("Load");
 	}
@@ -193,7 +194,7 @@ void HitboxPlugin::Render(CanvasWrapper canvas)
 			float diff = (camera.GetLocation() - v).magnitude();
 			Quat car_rot = RotatorToQuat(r);
 			if (diff < 1000.f)
-				RT::Sphere(v, car_rot, 3.f).Draw(canvas, frust,camera.GetLocation(), 10);
+				RT::Sphere(v, car_rot, 2.f).Draw(canvas, frust,camera.GetLocation(), 10);
 
 
 			auto sim = car.GetVehicleSim();
