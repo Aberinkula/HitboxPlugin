@@ -121,13 +121,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(BakkesModSDK)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\legog\AppData\Roaming\bakkesmod\bakkesmod\bakkesmodsdk\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(BakkesModSDK)\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\legog\AppData\Roaming\bakkesmod\bakkesmod\bakkesmodsdk\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>"$(BakkesModSDK)\bakkesmod-patch.exe" "$(TargetPath)"</Command>
