@@ -1,6 +1,7 @@
 #include "Hitbox.h"
 
-Hitbox::Hitbox(float length, float width, float height, float x_offset, float y_offset, float z_offset) {
+Hitbox::Hitbox(float length, float width, float height, float x_offset, float y_offset, float z_offset)
+{
 	this->length = length;
 	this->width = width;
 	this->height = height;
@@ -11,8 +12,10 @@ Hitbox::Hitbox(float length, float width, float height, float x_offset, float y_
 	computePoints();
 }
 
-void Hitbox::computePoints() {
+void Hitbox::computePoints()
+{
 	points.clear();
+
 	points.push_back(Vector(length, height, width));
 	points.push_back(Vector(length, height, -width));
 	points.push_back(Vector(-length, height, -width));
@@ -22,7 +25,8 @@ void Hitbox::computePoints() {
 	points.push_back(Vector(-length, -height, -width));
 	points.push_back(Vector(-length, -height, width));
 
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < 8; i++)
+	{
 		points[i].X += x_offset;
 		points[i].Z += y_offset; // plugin uses Y axis as up
 		points[i].Y += z_offset; // Z axis of the game is up
@@ -32,10 +36,11 @@ void Hitbox::computePoints() {
 void Hitbox::getPoints(std::vector<Vector> & pts)
 {
 	pts.clear();
+
 	for (int i = 0; i < 8; i++)
+	{
 		pts.push_back(points[i]);
+	}
 }
 
-Hitbox::~Hitbox()
-{
-}
+Hitbox::~Hitbox() { }
